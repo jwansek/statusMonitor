@@ -3,15 +3,53 @@
     <head>
         <title>StatusMonitor</title>
         <script src="{{url_for('static', filename='index.js')}}"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <noscript><link rel='stylesheet' href="{{url_for('static', filename='nojs.css')}}"></noscript>
+	    <link rel='stylesheet' href="{{url_for('static', filename='style.css')}}">
+        <noscript><style>
+            #wrapper {
+		        display: none;
+            }
+            #nojs {
+                text-align: center;
+                font-size: x-large;
+            }
+	</style></noscript>
     </head>
     <body>
         <div id='nojs'><p>Please turn on JavaScript</p></div>
         <div id='wrapper'>
             <header>
-                <h1>Hello World!</h1>
+                <h1 id='title'>Hello World!</h1>
+                <hr class='solid'></header>
             </header>
+            <section id='system'>
+                <h2>System Status</h2>
+                <table>
+                    <tr>
+                        <td>CPU:</td>
+                        <td id='cpu'></td>
+                        <td id='cpumisc'></td>
+                    </tr>
+                    <tr>
+                        <td>Memory:</td>
+                        <td id='memory'></td>
+                        <td id='memorymisc'></td>
+                    </tr>
+                    <tr>
+                        <td>Disk:</td>
+                        <td id='storage'></td>
+                        <td id='storagemisc'></td>
+                    </tr>
+                    <tr>
+                        <td>Swap:</td>
+                        <td id='swap'></td>
+                        <td id='swapmisc'></td>
+                    </tr>
+                </table>
+            </section>
+            <section id='docker'>
+                <h2>Docker Containers</h2>
+                <table id='dockertable'></table>
+            </section>
         </div>
     </body>
 </html>
