@@ -4,8 +4,16 @@ import docker
 import psutil
 import flask
 import json
+
+def get_server_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    host = str(s.getsockname()[0])
+    s.close()
+    return host
+
 app = flask.Flask(__name__)
-client = docker.from_env()
+client = docker.DockerClient(base_url = "tcp://%s:4550" % get_server_ip())
 
 @app.route("/")
 def hello_world():
@@ -26,25 +34,32 @@ def get_docker_info():
 
 @app.route("/host")
 def get_host():
-    # https://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
-    return flask.jsonify([l for l in ([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][:1], [[(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0])
+    return flask.jsonify(get_server_ip());
 
 def get_docker_containers():
     out = []
-    for container in client.containers.list():
-        containerobj = json.loads(next(container.stats()).decode())
-        out.append({
+    for container in client.containers.list(all = True):
+        # doing it like this since .stats(stream = False) is broken apparently
+        containerobj = next(container.stats(decode = True))
+        outobj = {
             "id": containerobj["id"],
             "name": containerobj["name"],
-            "memory": {
-                "usage": containerobj["memory_stats"]["usage"],
-                "max": containerobj["memory_stats"]["limit"]
-            },
             "cpu": containerobj["precpu_stats"]["cpu_usage"]["total_usage"],
             "status": container.status,
             "ports": container.ports,
-            "network": containerobj["networks"]
-        })
+        }
+        try:
+            outobj["memory"] = {
+                "usage": containerobj["memory_stats"]["usage"],
+                "max": containerobj["memory_stats"]["limit"]
+            }
+            outobj["network"] = containerobj["networks"]
+        except KeyError:
+            outobj["memory"] = {"usage": 0, "max":0}
+            outobj["network"] = {}
+      
+        out.append(outobj)
+
 
 
     return out

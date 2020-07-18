@@ -3,10 +3,11 @@ window.onload = function() {
 
     fetch("/host").then(function (response) {
         return response.json();
+        console.log(response.json());
     }).then(function (jsonresponse) {
         const ip = jsonresponse;
         document.getElementById("title").innerHTML = ip + " status monitor";
-        displaySystemStatus()
+        displaySystemStatus();
         updateDockerTable(ip);
     });
 };
