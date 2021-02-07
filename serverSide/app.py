@@ -34,7 +34,7 @@ def get_docker_info():
 
 @app.route("/host")
 def get_host():
-    return flask.jsonify(get_server_ip());
+    return flask.jsonify(get_server_ip())
 
 def get_docker_containers():
     out = []
@@ -65,6 +65,5 @@ def get_docker_containers():
     return out
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
-    # print(get_docker_containers())
-
+    from waitress import serve
+    serve(app, host='0.0.0.0', port=5000)

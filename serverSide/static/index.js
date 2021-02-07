@@ -52,7 +52,11 @@ async function updateDockerTable(host) {
 
             let portsCell = row.insertCell(4);
             Object.keys(container["ports"]).forEach(function (key) {
-                portsCell.innerHTML = key.link("http://" + host + ":" + container["ports"][key][0]["HostPort"]);
+                try {
+                    portsCell.innerHTML = key.link("http://" + host + ":" + container["ports"][key][0]["HostPort"]);
+                } catch (e) {
+                    portsCell.innerHTML = "";
+                }
             });
 
             Object.keys(container["network"]).forEach(function (key) {
